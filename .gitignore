@@ -1,0 +1,10 @@
+credentials.txt
+inventory.inventory
+run.spec
+/replay_frames/
+/dist/
+/build/*.pyc
+/build/TextGameEngineSDK/*.pyc
+/build/TextGameEngineSDK/map/*.pyc
+/.vscode/
+/__pycache__/
