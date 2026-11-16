@@ -1,3 +1,9 @@
-from TextGameEngineSDK.map.main import *
+from TextGameEngineSDK.map.main import main as mapMain
+from TextGameEngineSDK.hatred.main import main as hatredMain
 
-main()
+GAME = "map"
+
+if GAME == "map":
+    mapMain()
+elif GAME == "hatred":
+    hatredMain()
