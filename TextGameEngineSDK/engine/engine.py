@@ -31,12 +31,10 @@ audio = sourceaudio.Audio()
 def play_intro():
     subprocess.call('cls' if os.name == "nt" else "clear", shell=True)
     print("Game created by [Your Name]")
-    if audio.load_music("audio/intro.wav"):
-        audio.play_music(loop=True)
-    else:
-        print("Could not load music!")
+    audio.loadMusic("audio/intro.wav")
+    audio.playMusic(True)
     time.sleep(3)
-    audio.stop_music()
+    audio.stopMusic()
 
 class TextGameEngine:
     def __init__(self, webhook_url, GAME_ID="1087229", GAME_SECRET="9c28a0641edb8972318db701368aa384"):

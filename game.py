@@ -8,6 +8,7 @@ def main():
         GAME_ID=None,         # Change this
         GAME_SECRET=None  # Change this
     )
+    play_intro()
 
 if __name__ == "__main__":
     main()
