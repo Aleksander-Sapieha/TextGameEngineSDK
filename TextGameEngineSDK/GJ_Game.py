@@ -1,5 +1,7 @@
-import requests
+import urllib.request
+import urllib.parse
 import hashlib
+import json
 
 URL = "https://api.gamejolt.com/api/game/v1_2/"
 
@@ -21,40 +23,45 @@ class GJ_Game:
         with_key = f"{pre_url}{self.GAME_SECRET}"
         hashed = sha1_hash(with_key)
         post_url = f"{pre_url}&signature={hashed}"
-        response = requests.post(post_url)
-        return response.text
+        req = urllib.request.Request(post_url, method="POST")
+        response = urllib.request.urlopen(req)
+        return json.loads(response.read().decode("utf-8"))
 
     def fetch_user_data(self, username, token):
         pre_url = f"{URL}users/?game_id={self.GAME_ID}&username={username}&user_token={token}"
         with_key = f"{pre_url}{self.GAME_SECRET}"
         hashed = sha1_hash(with_key)
         post_url = f"{pre_url}&signature={hashed}"
-        response = requests.get(post_url)
-        return response.text
+        req = urllib.request.Request(post_url, method="POST")
+        response = urllib.request.urlopen(req)
+        return json.loads(response.read().decode("utf-8"))
 
     def time(self):
         pre_url = f"{URL}time/?game_id={self.GAME_ID}"
         with_key = f"{pre_url}{self.GAME_SECRET}"
         hashed = sha1_hash(with_key)
         post_url = f"{pre_url}&signature={hashed}"
-        response = requests.get(post_url)
-        return response.text
+        req = urllib.request.Request(post_url, method="POST")
+        response = urllib.request.urlopen(req)
+        return json.loads(response.read().decode("utf-8"))
 
     def addTrophy(self, username, token, trophy_id):
         pre_url = f"{URL}trophies/add-achieved/?game_id={self.GAME_ID}&username={username}&user_token={token}&trophy_id={trophy_id}"
         with_key = f"{pre_url}{self.GAME_SECRET}"
         hashed = sha1_hash(with_key)
         post_url = f"{pre_url}&signature={hashed}"
-        response = requests.post(post_url)
-        return response.text
+        req = urllib.request.Request(post_url, method="POST")
+        response = urllib.request.urlopen(req)
+        return json.loads(response.read().decode("utf-8"))
 
     def removeTrophy(self, username, token, trophy_id):
         pre_url = f"{URL}trophies/remove-achieved/?game_id={self.GAME_ID}&username={username}&user_token={token}&trophy_id={trophy_id}"
         with_key = f"{pre_url}{self.GAME_SECRET}"
         hashed = sha1_hash(with_key)
         post_url = f"{pre_url}&signature={hashed}"
-        response = requests.post(post_url)
-        return response.text
+        req = urllib.request.Request(post_url, method="POST")
+        response = urllib.request.urlopen(req)
+        return json.loads(response.read().decode("utf-8"))
 
 if __name__ == "__main__":
     GAME_ID = "1087229"

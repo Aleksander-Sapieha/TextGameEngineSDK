@@ -1,0 +1,1 @@
+/usr/bin/c++ -fPIC -shared -Wl,-soname,libsourceaudio.so -o libsourceaudio.so CMakeFiles/sourceaudio.dir/src/audio.cpp.o CMakeFiles/sourceaudio.dir/src/api.cpp.o  -ldl -lm 

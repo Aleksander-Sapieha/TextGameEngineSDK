@@ -6,9 +6,8 @@ import sys
 import pickle
 import requests
 import os
-os.environ['PYGAME_HIDE_SUPPORT_PROMPT'] = "hide"
+import TextGameEngineSDK.sourceaudio as sourceaudio
 
-import pygame
 from . import GJ_Game
 
 try:
@@ -17,16 +16,19 @@ except ImportError:
     msvcrt = None
 
 
-pygame.mixer.init()
+audio = sourceaudio.Audio()
 
-intro = pygame.mixer.Sound("audio/intro.wav")
+
 
 def play_intro():
     subprocess.call('cls' if os.name == "nt" else "clear", shell=True)
     print("Game created by Source Guy")
-    intro.play()
+    if audio.load_music("audio/intro.wav"):
+        audio.play_music(loop=True)
+    else:
+        print("Could not load music!")
     time.sleep(3)
-    intro.fadeout(20)
+    audio.stop_music()
 
 class GameState:
     def __init__(self):

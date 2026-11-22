@@ -106,8 +106,8 @@ def main():
                     print("Login failed. Please check your credentials.")
     while True:
         Engine.clearGameScreen()
-        pygame.mixer.music.load("audio/menu.wav")
-        pygame.mixer.music.play(-1)
+        audio.load_music("audio/menu.wav")
+        audio.play_music(loop=True)
         print("MAP v1.14")
         print("1. Start Game")
         print("2. Inventory")
