@@ -8,3 +8,5 @@ run.spec
 /build/TextGameEngineSDK/map/*.pyc
 /.vscode/
 /__pycache__/
+/TextGameEngineSDK/SourceAudio/build
+
