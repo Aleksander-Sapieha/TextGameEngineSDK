@@ -1,4 +1,4 @@
-from . import GJ_Game
+from ..APIs import GJ_Game
 
 class Auth:
     def __init__(self, api):

@@ -7,7 +7,7 @@ import os
 
 import TextGameEngineSDK.sourceaudio as sourceaudio
 from .inventory import Inventory
-from . import GJ_Game
+from ..APIs import GJ_Game
 from .game_state import GameState
 from .enemy import Enemy
 from .room import Room
