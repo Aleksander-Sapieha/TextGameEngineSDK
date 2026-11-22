@@ -1,0 +1,1 @@
+gcc -shared -fPIC bfppp.c -o bfppp.so

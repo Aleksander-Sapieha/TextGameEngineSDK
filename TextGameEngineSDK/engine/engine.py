@@ -28,10 +28,10 @@ audio = sourceaudio.Audio()
 
 
 
-def play_intro():
+def play_intro(name, songPath):
     subprocess.call('cls' if os.name == "nt" else "clear", shell=True)
-    print("Game created by [Your Name]")
-    audio.loadMusic("audio/intro.wav")
+    print(f"Game created by {name}")
+    audio.loadMusic(songPath)
     audio.playMusic(True)
     time.sleep(3)
     audio.stopMusic()

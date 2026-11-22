@@ -8,7 +8,8 @@ def main():
         GAME_ID=None,         # Change this
         GAME_SECRET=None  # Change this
     )
-    play_intro()
+    Engine.clearGameScreen()
+    play_intro("Source Guy", "audio/intro.wav")
 
     # Your game code here
 
