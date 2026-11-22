@@ -1,3 +1,0 @@
-/home/source/Documents/map/Map/TextGameEngineSDK/SourceAudio/build/CMakeFiles/sourceaudio.dir
-/home/source/Documents/map/Map/TextGameEngineSDK/SourceAudio/build/CMakeFiles/edit_cache.dir
-/home/source/Documents/map/Map/TextGameEngineSDK/SourceAudio/build/CMakeFiles/rebuild_cache.dir
