@@ -10,5 +10,8 @@ def main():
     )
     play_intro()
 
+    # Your game code here
+
+
 if __name__ == "__main__":
     main()
