@@ -1,5 +1,4 @@
 import urllib.request
-import urllib.parse
 import hashlib
 import json
 
@@ -36,6 +35,15 @@ class GJ_Game:
         response = urllib.request.urlopen(req)
         return json.loads(response.read().decode("utf-8"))
 
+    def fetch_user_friends(self, username, token):
+        pre_url = F"{URL}friends/?game_id={self.GAME_ID}&username={username}&user_token={token}",
+        with_key = f"{pre_url}{self.GAME_SECRET}"
+        hashed = sha1_hash(with_key)
+        post_url = f"{pre_url}&signature={hashed}"
+        req = urllib.request.Request(post_url, method="POST")
+        response = urllib.request.urlopen(req)
+        return json.loads(response.read().decode("utf-8"))
+
     def time(self):
         pre_url = f"{URL}time/?game_id={self.GAME_ID}"
         with_key = f"{pre_url}{self.GAME_SECRET}"
@@ -64,11 +72,4 @@ class GJ_Game:
         return json.loads(response.read().decode("utf-8"))
 
 if __name__ == "__main__":
-    GAME_ID = "1087229"
-    GAME_SECRET = "9c28a0641edb8972318db701368aa384"
-
-    print(GJ_Game(GAME_ID, GAME_SECRET).log_in("sourceguy", "geometry.dash2"))
-    print(GJ_Game(GAME_ID, GAME_SECRET).fetch_user_data("sourceguy", "geometry.dash2"))
-    print(GJ_Game(GAME_ID, GAME_SECRET).time())
-    print(GJ_Game(GAME_ID, GAME_SECRET).addTrophy("sourceguy", "geometry.dash2", "307933"))
-    print(GJ_Game(GAME_ID, GAME_SECRET).removeTrophy("sourceguy", "geometry.dash2", "307933"))
+    pass

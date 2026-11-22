@@ -1,14 +1,22 @@
-import json
 import select
 import subprocess
 import time
 import sys
-import pickle
 import requests
 import os
-import TextGameEngineSDK.sourceaudio as sourceaudio
 
+import TextGameEngineSDK.sourceaudio as sourceaudio
+from .inventory import Inventory
 from . import GJ_Game
+from .game_state import GameState
+from .enemy import Enemy
+from .room import Room
+from .trophies import Trophies
+from .item_drop import DropSystem
+from.authentication import Auth
+from .gj_api import Api
+from .puzzle import *
+from .bug_reporter import BugReporter
 
 try:
     import msvcrt
@@ -22,7 +30,7 @@ audio = sourceaudio.Audio()
 
 def play_intro():
     subprocess.call('cls' if os.name == "nt" else "clear", shell=True)
-    print("Game created by Source Guy")
+    print("Game created by [Your Name]")
     if audio.load_music("audio/intro.wav"):
         audio.play_music(loop=True)
     else:
@@ -30,253 +38,12 @@ def play_intro():
     time.sleep(3)
     audio.stop_music()
 
-class GameState:
-    def __init__(self):
-        self.is_running = True
-        self.current_room = None
-        self.inventory = []
-        self.health = 100
-        self.attack_power = 10
-
-    def save_game(self, world, filename="savegame.json"):
-        save_data = {
-            "current_room": self.current_room.name,
-            "inventory": self.inventory,
-            "health": self.health,
-            "attack_power": self.attack_power,
-            "world": {  # Save the state of all rooms
-                room_name: {
-                    "items": room.items,
-                    "locked": room.locked,
-                    "enemy": {
-                        "name": room.enemy.name,
-                        "health": room.enemy.health,
-                        "attack_power": room.enemy.attack_power
-                    } if room.enemy else None
-                }
-                for room_name, room in world.items()
-            }
-        }
-        with open(filename, "w") as file:
-            json.dump(save_data, file)
-        print("Game saved.")
-
-    def load_game(self, world, filename="savegame.json"):
-        try:
-            with open(filename, "r") as file:
-                save_data = json.load(file)
-
-            self.current_room = world[save_data["current_room"]]
-            self.inventory = list(save_data.get("inventory", []))
-            self.health = save_data["health"]
-            self.attack_power = save_data["attack_power"]
-
-            # Restore room states
-            for room_name, room_state in save_data["world"].items():
-                room = world[room_name]
-                room.items = room_state["items"]
-                room.locked = room_state["locked"]
-                if room_state["enemy"]:
-                    enemy_state = room_state["enemy"]
-                    room.enemy = Enemy(
-                        name=enemy_state["name"],
-                        health=enemy_state["health"],
-                        attack_power=enemy_state["attack_power"]
-                    )
-                else:
-                    room.enemy = None
-
-            print("Game loaded.")
-        except FileNotFoundError:
-            print("No saved game found.")
-
-    def save_replay(self, commands, filename="replay.json"):
-        with open(filename, "w") as file:
-            json.dump(commands, file)
-
-        print("Replay saved.")
-
-
-
-class Room:
-    def __init__(self, name, description, connections=None, items=None, enemy=None, locked=False, key=None, end=False):
-        self.name = name
-        self.description = description
-        self.connections = connections or {}
-        self.items = items or []
-        self.enemy = enemy  # Instance of Enemy class
-        self.locked = locked  # Is the room locked?
-        self.key = key  # Key required to unlock
-        self.end = end or False
-
-    def describe(self, inventory=None):
-        desc = f"{self.name}\n{self.description}\n"
-        visible_items = [item for item in self.items if item not in (inventory or [])]
-        if visible_items:
-            desc += f"You see: {', '.join(visible_items)}\n"
-        if self.enemy:
-            desc += f"A {self.enemy.name} is here! Prepare for battle.\n"
-        return desc
-
-class Enemy:
-    def __init__(self, name, health, attack_power):
-        self.name = name
-        self.health = health
-        self.attack_power = attack_power
-
-class Puzzle:
-    def __init__(self, question, answer, reward=None):
-        self.question = question
-        self.answer = answer
-        self.reward = reward
-
-    def solve(self, user_answer):
-        return user_answer.lower() == self.answer.lower()
-
-def parse_input(user_input):
-    commands = user_input.strip().lower().split()
-    action = commands[0] if commands else None
-    target = " ".join(commands[1:]) if len(commands) > 1 else None
-    return action, target
-
-class Crafting:
-    def __init__(self):
-        self.recipes = {
-            "torch Set Series 1": ["stick", "cloth", "flint"],
-            "wire cutters Set Series 1": ["metal", "plastic"]
-        }
-
-    def has_required_items(self, item_to_craft):
-        if item_to_craft in self.recipes:
-            required_items = self.recipes[item_to_craft]
-            return all(item in self.inv.list_items() for item in required_items)
-        return False
-
-    def craft(self, inventory, item_to_craft):
-        if item_to_craft in self.recipes:
-            required_items = self.recipes[item_to_craft]
-            if all(item in inventory for item in required_items):
-                for item in required_items:
-                    inventory.remove(item)
-                inventory.append(item_to_craft)
-                return True, f"You crafted {item_to_craft}!"
-            else:
-                return False, f"You don't have the required items to craft {item_to_craft}."
-        else:
-            return False, f"{item_to_craft} cannot be crafted."
-
-def display(text):
-    print(text)
-
-class Inventory:
-    def __init__(self):
-        self.items: list = []
-
-    def has_item(self, item):
-        return item in self.items
-
-    def add_item(self, item):
-        self.items.append(item)
-
-    def remove_item(self, item):
-        if item in self.items:
-            self.items.remove(item)
-
-    def list_items(self):
-        return self.items
-
-    def save_inventory(self, filename="inventory.inventory"):
-        with open(filename, "wb") as file:
-            pickle.dump(self.items, file)
-
-    def load_inventory(self, filename="inventory.inventory"):
-        try:
-            with open(filename, "rb") as file:
-                self.items = pickle.load(file)
-        except FileNotFoundError:
-            self.items = []
-
-class DropSystem:
-    def __init__(self, drop_chance=0.60):  # Default drop chance is 60%
-        self.drop_chance = drop_chance
-
-    def attempt_drop(self, item=None, chance=None):
-        import random
-        if chance is None:
-            chance = self.drop_chance
-        if random.random() < chance:
-            return True, f"You found a {item}!" if item else "You found something!"
-        else:
-            return False, "No items dropped."
-
-class BugReporter:
-    def __init__(self, webhook_url):
-        self.webhook_url = webhook_url
-
-    def send_bug_report(self, description):
-        data = {
-            "content": f"**New Bug Report**\n\nPython version: {sys.version}\n\nOperating System: {sys.platform}\n\n{description}"
-        }
-
-        response = requests.post(self.webhook_url, json=data)
-
-        if response.status_code == 204:
-            print("Bug report sent!")
-        else:
-            print("Failed to send report:", response.status_code)
-        print("Thank you for reporting the bug. We will look into it.")
-
-class Api:
-    def __init__(self, GAME_ID, GAME_SECRET):
-        self.GAME_ID = GAME_ID
-        self.GAME_SECRET = GAME_SECRET
-        self.gj_game = GJ_Game.GJ_Game(GAME_ID=GAME_ID, GAME_SECRET=GAME_SECRET)
-
-class Auth:
-    def __init__(self, api):
-        self.logged_in = False
-        self.username = None
-        self.token = None
-
-    def login(self, username, token, api):
-        self.username = username
-        self.token = token
-        gj_game = GJ_Game.GJ_Game(api.GAME_ID, api.GAME_SECRET)
-        response = gj_game.log_in(username, token)
-        if "success" in response.lower():
-            self.logged_in = True
-            print("Login successful!")
-            with open("credentials.txt", "w") as f:
-                f.write(f"{username}\n{token}")
-            return True
-        else:
-            print("Login failed. Please check your credentials.")
-            self.logged_in = False
-            return False
-        return False
-
-class Trophies:
-    def __init__(self, api):
-        self.api = api
-
-    def add_trophy(self, username, token, trophy_id):
-        gj_game = GJ_Game.GJ_Game(self.api.GAME_ID, self.api.GAME_SECRET)
-        response = gj_game.addTrophy(username, token, trophy_id)
-        return response
-
-    def remove_trophy(self, username, token, trophy_id):
-        gj_game = GJ_Game.GJ_Game(self.api.GAME_ID, self.api.GAME_SECRET)
-        response = gj_game.removeTrophy(username, token, trophy_id)
-        return response
-
 class TextGameEngine:
     def __init__(self, webhook_url, GAME_ID="1087229", GAME_SECRET="9c28a0641edb8972318db701368aa384"):
         self.game_state = GameState()
         self.world = {}
 
         self.inv = Inventory()
-
-        self.crafting = Crafting()
 
         self.drop = DropSystem()
 
@@ -286,7 +53,7 @@ class TextGameEngine:
         self.auth = Auth(api=self.api)
         self.trophies = Trophies(api=self.api)
 
-        from .renderer import Renderer
+        from ..renderer import Renderer
         self.renderer = Renderer()
 
         self.replay_commands = []
@@ -295,7 +62,7 @@ class TextGameEngine:
         self._transient_message_until = 0.0
         self._last_realtime_move = 0.0
 
-        from .videoExporter import VideoExporter
+        from ..videoExporter import VideoExporter
 
         self.exporter = VideoExporter()
 
