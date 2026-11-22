@@ -9,5 +9,4 @@ run.spec
 /.vscode/
 /__pycache__/
 /TextGameEngineSDK/SourceAudio/build
-
 /TextGameEngineSDK/engine/__pycache__/
